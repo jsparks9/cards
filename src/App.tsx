@@ -19,7 +19,7 @@ interface Deck {
 }
 
 const api_base = 'https://raw.githubusercontent.com/jsparks9/cards/main/API/';
-let decks = ['SQL','Java','HTMLCSS','JavaScript1','TypeScript','React'];
+let decks = ['SQL','Java','HTMLCSS','JavaScript1','TypeScript','React','Spring'];
 const ex = '.json';
 let hasSent = false;
 let qm_down = false;
