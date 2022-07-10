@@ -1,21 +1,3 @@
-// import BoxSx from './components/Box.tsx'
-
-
-// function App() {
-//   return (
-//     <>
-//       <BoxSx/>
-//       <div className="App">
-        
-//         <h1>Content!</h1>
-//       </div>
-//     </>
-//   );
-// }
-
-// export default App;
-
-
 import React, { SyntheticEvent, useEffect, useState } from "react";
 import "./styles.css";
 import { Card, Button, Typography } from "@mui/material";
@@ -37,11 +19,13 @@ interface Deck {
 }
 
 const api_base = 'https://raw.githubusercontent.com/jsparks9/cards/main/API/';
-const decks = ['SQL','Java','HTMLCSS','JavaScript1','TypeScript','React'];
+let decks = ['SQL','Java','HTMLCSS','JavaScript1','TypeScript','React'];
 const ex = '.json';
 let hasSent = false;
 let qm_down = false;
 let qm_moved = false;
+let show_a = true;
+const default_a = "<h3>Click to Show Answer";
 
 export default function App() {
   const [loadedDecks, setLoadedDecks] = useState<Deck[]>([]); // stores fetched decks
@@ -51,13 +35,15 @@ export default function App() {
   const [orderInd, setOrderInd] = useState<number[]>([]); // tracks deck order in currentCards
   const [displayCard, setDisplayCard] = useState<Card>({q:"<h1>Click to display a question</h1>",a:""} as Card);
 
-  const [deckSelection, setDeckSelection] = React.useState([decks[0]]);
+  const [showA, setShowA] = useState(true);
+  const [deckSelection, setDeckSelection] = React.useState<string[]>([]);
 
   const handleDeckSelection = (
     event: React.MouseEvent<HTMLElement>,
     currentSel: string[],
   ) => {
     if (currentSel.length) { // enforces at least one selection
+      console.log("Setting deck selection to "+currentSel)
       setDeckSelection(currentSel);
     }
   };
@@ -65,21 +51,21 @@ export default function App() {
   useEffect(() => {
     console.log("deckSelection changed. current selection is " + deckSelection);
     let inds:number[] = [];
-    for (let entry in deckSelection) {
-      // console.log("entry:"+deckSelection[entry])
-      let ind = decks.indexOf(deckSelection[entry]);
+    for (let entry of deckSelection) {
+      console.log("entry:"+entry);
+      let ind = decks.indexOf(entry); // in : deckSelection[entry]
       if (ind >= 0) {
         inds.push(ind);
       }
     };
     inds.sort();
     console.log(inds); 
+    setCurrentDeckInds(inds);
     if (loadedDeckInds.length < decks.length) { // check if all decks have been fetched
       let add:number[] = [];
       (inds.filter(item => loadedDeckInds.indexOf(item) < 0)).forEach(dif => add.push(dif) && load(dif));
       setLoadedDeckInds([...loadedDeckInds, ...add].sort()) // keep track of fetched decks
     }
-    setCurrentDeckInds(inds);
   }, [deckSelection])
 
   useEffect(() => {
@@ -109,7 +95,7 @@ export default function App() {
     setCurrentCards(cardColl);
     setOrderInd(order);
     // now ready for flashcard functionality
-  },[currentDeckInds])
+  },[loadedDecks, currentDeckInds]) // working solution; perhaps not the best solution
 
 
   async function load(ind:number) {
@@ -142,21 +128,70 @@ export default function App() {
   //   console.log("length: " + loadedDecks.length)
   // }, [loadedDecks])
 
-  useEffect(() => { 
-    if(!hasSent ) { // !loadedDecks prevents additional fetches during development
-      hasSent = true; // prevents double request
-      console.log("Page loaded. Calling load(0)");
-      load(0); 
-      // setDeckSelection([decks[0]]);
-      //hasSent = false; // not sure about this
-    }
-  }, []); // loads first deck
+  // useEffect(() => { 
+  //   if(!hasSent ) { // !loadedDecks prevents additional fetches during development
+  //     hasSent = true; // prevents double request
+  //     console.log("Page loaded. Calling load(0)");
+  //     load(0); 
+  //     setLoadedDeckInds([0]);
+  //     setCurrentDeckInds([0]);
+  //     // setDeckSelection([decks[0]]);
+  //     //hasSent = false; // not sure about this
+  //   }
+  // }, []); // loads first deck
 
   const getNextCard = () => {
     console.log("getting next card");
-    const max:number = currentCards.length;
-    const rnum:number = Math.floor(Math.random() * max);
-    if (currentCards && currentCards[0]) {
+    console.log("currentCards.length=" + currentCards.length);
+    let mem:number[] = [];
+    let mem_offset = 0;
+    let cards:Card[] = [];
+    let deck_len:number[] = [];
+    // cards are always in order 
+    let deck_ind:number[] = currentDeckInds.sort();
+    for (let i of deck_ind) {
+      for (let d of loadedDecks) {
+        if (d.idx === i) {
+          cards = cards.concat(d.cards); // add cards
+          deck_len = deck_len.concat([d.cards.length+mem_offset]);
+          mem = mem.concat(d.memory.map(m => (m+mem_offset)));
+          mem_offset += d.cards.length;
+
+        }
+      }
+    }
+    console.log("deck_ind: "+deck_ind);
+
+    const max:number = cards.length - mem.length;
+    let rnum:number = Math.floor(Math.random() * max);
+    let i = 0;
+    while(i <= rnum) {
+      if (mem.includes(i)) {rnum++}
+      i++;
+    }
+    // trace what card was selected, then manage relevent deck's memory
+    let last_deck_len = 0;
+    for (let i in deck_len) {
+      console.log("i is: "+ i);
+      console.log("Deck len "+deck_len[i]);
+      if (rnum < deck_len[i]) {
+        console.log("card is from "+decks[deck_ind[i]])
+        for (let d of loadedDecks) {
+          if (d.idx === deck_ind[i]) {
+            console.log("Adding to mem of deck with first card: " + d.cards[0].q)
+            d.memory.push((!i)?rnum:rnum-last_deck_len);
+            if (d.memory.length > d.memlen) {d.memory.shift()}
+            console.log("mem now: "+ d.memory);
+            break;
+            
+          }
+        }
+        last_deck_len = deck_len[i];
+        break;
+      }
+    }
+
+    if (currentCards && currentCards[rnum]) {
       setDisplayCard(currentCards[rnum]);
     }
     else {
@@ -166,14 +201,8 @@ export default function App() {
 
   }
 
-  // const q_click = (e:SyntheticEvent) => {
-  //   console.log("Q clicked");
-  //   getNextCard();
-  // }
-  const a_click = (e:SyntheticEvent) => {
-    console.log("A clicked");
-  }
   const q_m_down = (e:SyntheticEvent) => {
+    console.log("currentCards.length= "+currentCards.length)
     console.log("click down");
     qm_down = true;
   }
@@ -187,6 +216,8 @@ export default function App() {
     if (!qm_moved) {
       qm_down = false; 
       qm_moved = false;
+      show_a = false;
+      setShowA(false);
       getNextCard();}
     if (qm_moved) {
       qm_down = false; 
@@ -194,6 +225,29 @@ export default function App() {
     }
   }
 
+  const a_m_down = (e:SyntheticEvent) => {
+    console.log("click down");
+    qm_down = true;
+  }
+  const a_m_move = (e:SyntheticEvent) => {
+    console.log("moved");
+    if (qm_down) { qm_moved = true;
+    }
+  }
+  const a_m_up = (e:SyntheticEvent) => {
+    console.log("click up");
+    if (!qm_moved) {
+      qm_down = false; 
+      qm_moved = false;
+      show_a = true;
+      setShowA(true);
+      
+    }
+    if (qm_moved) {
+      qm_down = false; 
+      qm_moved = false;
+    }
+  }
   
 
 
@@ -226,8 +280,12 @@ export default function App() {
         style={{ width: "500px", height: "300px", 
         backgroundColor: "#00A2FF", color: "#ffffff" }}
       >
-        <div onClick={a_click} style={{ width: "100%", height: "100%"}}
-        dangerouslySetInnerHTML={{__html: displayCard.a}}
+        <div 
+          onMouseDown={a_m_down}
+          onMouseUp={a_m_up}
+          onMouseMove={a_m_move}
+          style={{ width: "100%", height: "100%"}}
+          dangerouslySetInnerHTML={{__html: (showA)?displayCard.a:default_a}}
         ></div></Card>
     </Draggable>
 
