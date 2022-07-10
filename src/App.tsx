@@ -16,7 +16,7 @@
 // export default App;
 
 
-import React, { useEffect, useState } from "react";
+import React, { SyntheticEvent, useEffect, useState } from "react";
 import "./styles.css";
 import { Card, Button, Typography } from "@mui/material";
 import Draggable from "react-draggable";
@@ -40,6 +40,8 @@ const api_base = 'https://raw.githubusercontent.com/jsparks9/cards/main/API/';
 const decks = ['SQL','Java','HTMLCSS','JavaScript1','TypeScript','React'];
 const ex = '.json';
 let hasSent = false;
+let qm_down = false;
+let qm_moved = false;
 
 export default function App() {
   const [loadedDecks, setLoadedDecks] = useState<Deck[]>([]); // stores fetched decks
@@ -88,15 +90,22 @@ export default function App() {
     // set setCurrentCards to be from the selected decks
     let order:number[] = [];
     let cardColl:Card[] = [];
+    // while(currentDeckInds.length != loadedDecks.length) {
+    //   console.log("Not equal");
+    // }
+    console.log("debug: "+currentDeckInds.length + " " + loadedDecks.length);
     for (let i of currentDeckInds) { // for each currentDeckInd selected by user, 
       for (let d of loadedDecks) {
         if (d.idx === i) {
           order.push(i);
-          cardColl.concat(d.cards);
+          console.log("adding "+ d.cards.length +" cards");
+          cardColl = cardColl.concat(d.cards);
           break; // terminate inner loop
         }
       }
     }
+    console.log(cardColl); // empty
+    console.log("Current Cards should be set");
     setCurrentCards(cardColl);
     setOrderInd(order);
     // now ready for flashcard functionality
@@ -115,6 +124,9 @@ export default function App() {
       let data = await resp.json();
       console.log("Got data, calling injectDeck");
       injectDeck(ind, await data);
+    } else {
+      console.log("fetch failed with code "+resp.status); 
+      // Hardcode decks as backup
     }
   }
 
@@ -141,8 +153,48 @@ export default function App() {
   }, []); // loads first deck
 
   const getNextCard = () => {
+    console.log("getting next card");
+    const max:number = currentCards.length;
+    const rnum:number = Math.floor(Math.random() * max);
+    if (currentCards && currentCards[0]) {
+      setDisplayCard(currentCards[rnum]);
+    }
+    else {
+      setDisplayCard({q:"<h1>No Cards Loaded</h1>", a:"<h1></h1>"} as Card);
+    }
+    console.log(currentCards);
 
   }
+
+  // const q_click = (e:SyntheticEvent) => {
+  //   console.log("Q clicked");
+  //   getNextCard();
+  // }
+  const a_click = (e:SyntheticEvent) => {
+    console.log("A clicked");
+  }
+  const q_m_down = (e:SyntheticEvent) => {
+    console.log("click down");
+    qm_down = true;
+  }
+  const q_m_move = (e:SyntheticEvent) => {
+    console.log("moved");
+    if (qm_down) { qm_moved = true;
+    }
+  }
+  const q_m_up = (e:SyntheticEvent) => {
+    console.log("click up");
+    if (!qm_moved) {
+      qm_down = false; 
+      qm_moved = false;
+      getNextCard();}
+    if (qm_moved) {
+      qm_down = false; 
+      qm_moved = false;
+    }
+  }
+
+  
 
 
 
@@ -155,16 +207,28 @@ export default function App() {
       </div> */}
     <Draggable >
       <Card 
-        style={{ width: "500px", height: "300px", backgroundColor: "#FF9300", color: "#ffffff" }}
+        style={{ width: "500px", height: "300px", 
+        backgroundColor: "#FF9300", color: "#ffffff" }}
+      >
+        <div //onClick={q_click} 
+        onMouseDown={q_m_down}
+        onMouseUp={q_m_up}
+        onMouseMove={q_m_move}
+        // resolve intent with non-state variables. 
+        
+        style={{ width: "100%", height: "100%"}}
         dangerouslySetInnerHTML={{__html: displayCard.q}}
-      ></Card>
+        ></div></Card>
     </Draggable>
 
     <Draggable >
       <Card 
-        style={{ width: "500px", height: "300px", backgroundColor: "#00A2FF", color: "#ffffff" }}
+        style={{ width: "500px", height: "300px", 
+        backgroundColor: "#00A2FF", color: "#ffffff" }}
+      >
+        <div onClick={a_click} style={{ width: "100%", height: "100%"}}
         dangerouslySetInnerHTML={{__html: displayCard.a}}
-      ></Card>
+        ></div></Card>
     </Draggable>
 
     <Draggable >
