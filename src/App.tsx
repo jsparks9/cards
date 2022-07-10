@@ -153,13 +153,19 @@ export default function App() {
       for (let d of loadedDecks) {
         if (d.idx === i) {
           cards = cards.concat(d.cards); // add cards
-          deck_len = deck_len.concat([d.cards.length+mem_offset]);
+          console.log("mem before: " + mem);
+          console.log("Deck " + decks[d.idx] + " has " + d.cards.length + " cards and mem " + d.memory);
           mem = mem.concat(d.memory.map(m => (m+mem_offset)));
+          console.log("Adding memory: " + d.memory+" with offset "+mem_offset);
+          console.log("mem after: " + mem);
           mem_offset += d.cards.length;
-
+          deck_len = deck_len.concat([mem_offset]);
+          console.log("mem_offset= "+ mem_offset);
+          break; // break inner loop
         }
       }
     }
+    console.log("current mem: " + mem);
     console.log("deck_ind: "+deck_ind);
 
     const max:number = cards.length - mem.length;
@@ -172,23 +178,24 @@ export default function App() {
     // trace what card was selected, then manage relevent deck's memory
     let last_deck_len = 0;
     for (let i in deck_len) {
-      console.log("i is: "+ i);
-      console.log("Deck len "+deck_len[i]);
+      // console.log("i is: "+ i);
+      // console.log("Deck len "+deck_len[i]);
       if (rnum < deck_len[i]) {
-        console.log("card is from "+decks[deck_ind[i]])
+        // console.log("card is from "+decks[deck_ind[i]])
         for (let d of loadedDecks) {
           if (d.idx === deck_ind[i]) {
-            console.log("Adding to mem of deck with first card: " + d.cards[0].q)
-            d.memory.push((!i)?rnum:rnum-last_deck_len);
+            // console.log("Adding to mem of deck with first card: " + d.cards[0].q)
+            console.log("pushing "+(rnum-last_deck_len)+" to mem of Deck " + decks[d.idx] + " that has "+d.cards.length+" cards");
+            d.memory.push(rnum-last_deck_len);
             if (d.memory.length > d.memlen) {d.memory.shift()}
-            console.log("mem now: "+ d.memory);
+            // console.log("mem now: "+ d.memory);
             break;
             
           }
         }
-        last_deck_len = deck_len[i];
         break;
       }
+      last_deck_len = deck_len[i];
     }
 
     if (currentCards && currentCards[rnum]) {
