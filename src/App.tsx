@@ -268,8 +268,9 @@ export default function App() {
       </div> */}
     <Draggable >
       <Card 
-        style={{ width: "500px", height: "300px", 
-        backgroundColor: "#FF9300", color: "#ffffff" }}
+        style={{ minWidth: "500px", minHeight: "300px", 
+        backgroundColor: "#FF9300", color: "#ffffff", 
+        textAlign:"left" }}
       >
         <div //onClick={q_click} 
         onMouseDown={q_m_down}
@@ -284,8 +285,10 @@ export default function App() {
 
     <Draggable >
       <Card 
-        style={{ width: "500px", height: "300px", 
-        backgroundColor: "#00A2FF", color: "#ffffff" }}
+        style={{ minWidth: "500px", minHeight: "300px", 
+        backgroundColor: "#00A2FF", color: "#ffffff", 
+        textAlign:"left"
+        }}
       >
         <div 
           onMouseDown={a_m_down}
