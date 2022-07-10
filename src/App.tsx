@@ -43,11 +43,12 @@ let hasSent = false;
 
 export default function App() {
   const [loadedDecks, setLoadedDecks] = useState<Deck[]>([]); // stores fetched decks
+  const [loadedDeckInds, setLoadedDeckInds] = useState<number[]>([]); // tracks fetched decks by index
   const [currentDeckInds, setCurrentDeckInds] = useState<number[]>([]); // tracks currently selected decks
   const [currentCards, setCurrentCards] = useState<Card[]>([]); // cards that may be displayed
   const [displayCard, setDisplayCard] = useState<Card>({q:"",a:""} as Card);
 
-  const [deckSelection, setDeckSelection] = React.useState(() => [decks[0]]);
+  const [deckSelection, setDeckSelection] = React.useState([decks[0]]);
 
   const handleDeckSelection = (
     event: React.MouseEvent<HTMLElement>,
@@ -59,58 +60,69 @@ export default function App() {
   };
 
   useEffect(() => {
+    console.log("deckSelection changed. current selection is " + deckSelection);
     
+    if (loadedDeckInds.length < decks.length) { // check if all decks have been fetched
+      console.log("Running inner code");
+      let inds:number[] = [];
+      for (let entry in deckSelection) {
+        // console.log("entry:"+deckSelection[entry])
+        let ind = decks.indexOf(deckSelection[entry]);
+        if (ind >= 0) {
+          inds.push(ind);
+        }
+      };
+      inds.sort();
+      console.log(inds); // working up to here
+      let add:number[] = [];
+      (inds.filter(item => loadedDeckInds.indexOf(item) < 0)).forEach(dif => add.push(dif) && load(dif));
+      setLoadedDeckInds([...loadedDeckInds, ...add].sort()) // keep track of fetched decks
+    }
   }, [deckSelection])
 
   useEffect(() => {
-    console.log("current selection is " + deckSelection);
-    let inds:number[] = [];
-    for (let entry in deckSelection) {
-      let ind = decks.indexOf(entry)+1;
-      ind && inds.push(ind-1);
-    };
-    //setCurrentDeckInds(inds.sort()); // sort and set
-    if (loadedDecks.length < decks.length) {
-      (inds.filter(item => currentDeckInds.indexOf(item) < 0)).forEach(dif => load(dif));
-    }
-    // check length of "loaded decks" and if not max then 
-    // find what which one(s) has not loaded, then call load(ind)
-  }, [deckSelection])
+    console.log("loadedDeckInds updated to "+ loadedDeckInds)
+  }, [loadedDeckInds])
 
-  // make some buttons that load in current decks
+
   async function load(ind:number) {
     // for (let deck of loadedDecks) {
     //   if (deck.idx === ind) {
     //     return;
     //   }
     // } // no matches => fetch the deck
+    console.log("getting the deck by ID "+ind);
     let resp = await fetch(api_base+decks[ind]+ex);
     if (Math.floor(resp.status/100) === 2) { // 200 expected
       let data = await resp.json();
+      console.log("Got data, calling injectDeck");
       injectDeck(ind, await data);
-
     }
   }
-
-  useEffect(() => {
-
-    console.log(loadedDecks);
-    console.log("length: " + loadedDecks.length)
-  }, [loadedDecks])
-
-  useEffect(() => { 
-    if(!hasSent && !loadedDecks) { // !loadedDecks prevents additional fetches during development
-      hasSent = true; // prevents double request
-      load(0); 
-      //hasSent = false; // not sure about this
-    }
-  }, []) // loads first deck
 
   function injectDeck(ind:number, data:any) {
     let deck:Deck = {idx:ind,cards:data as unknown as Card[], memory:[], memlen:0} as Deck;
     deck.memlen = Math.floor(deck.cards.length / 2);
+    console.log("setting loaded decks with response");
     setLoadedDecks([...loadedDecks, deck]);
   }
+
+  // useEffect(() => {
+  //   console.log(loadedDecks);
+  //   console.log("length: " + loadedDecks.length)
+  // }, [loadedDecks])
+
+  useEffect(() => { 
+    if(!hasSent ) { // !loadedDecks prevents additional fetches during development
+      hasSent = true; // prevents double request
+      console.log("Page loaded. Calling load(0)");
+      load(0); 
+      // setDeckSelection([decks[0]]);
+      //hasSent = false; // not sure about this
+    }
+  }, []) // loads first deck
+
+  
 
 
 
@@ -118,6 +130,8 @@ export default function App() {
     <div className="App">
       <div className="Please_delete_me" onClick={() => {}}>
         <p>Button16</p>
+        <div><button onClick={() => {console.log("loadedDeckInds.length="+loadedDeckInds.length)}}>loadedDeckInds.length</button></div>
+        <button onClick={() => {console.log("loadedDecks.length="+loadedDecks.length)}}>loadedDecks.length</button>
       </div>
 
       <ToggleButtonGroup
