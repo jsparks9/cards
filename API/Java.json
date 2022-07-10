@@ -197,11 +197,11 @@
   },
   {
     "q": "<h3>What is the difference between an exception and an error in Java?</h3>",
-    "a": "<p>Exceptions and errors both are subclasses of Throwable class. The error indicates a problem that mainly occurs due to the lack of system resources and our application should not catch these types of problems.</p>\n<p>Exceptions are the problems which can occur at runtime and compile time.</p>\n<p>(<a target=\"_blank\" href=\"https://www.tutorialspoint.com/difference-between-exception-and-error-in-java\">tutorialspoint.com</a>)</p>\n<img src=\"images/Exception-in-java1.png\" alt=\"exceptions in Java flowchart\">\n<p>(<a target=\"_blank\" href=\"https://www.geeksforgeeks.org/checked-vs-unchecked-exceptions-in-java/\">geeksforgeeks.org</a>)</p>"
+    "a": "<p>Exceptions and errors both are subclasses of Throwable class. The error indicates a problem that mainly occurs due to the lack of system resources and our application should not catch these types of problems.</p>\n<p>Exceptions are the problems which can occur at runtime and compile time.</p>\n<p>(<a target=\"_blank\" href=\"https://www.tutorialspoint.com/difference-between-exception-and-error-in-java\">tutorialspoint.com</a>)</p>\n<img src=\"https://raw.githubusercontent.com/jsparks9/cards/main/images/Exception-in-java1.png\" alt=\"exceptions in Java flowchart\">\n<p>(<a target=\"_blank\" href=\"https://www.geeksforgeeks.org/checked-vs-unchecked-exceptions-in-java/\">geeksforgeeks.org</a>)</p>"
   },
   {
     "q": "<h3>What is the difference between a checked and an unchecked exception?</h3>",
-    "a": "<p>Checked exceptions are thrown at compile time; unchecked are runtime exceptions.</p>\n<img src=\"images/Exception-in-java1.png\" alt=\"exceptions in Java flowchart\">\n<p>(<a target=\"_blank\" href=\"https://www.geeksforgeeks.org/checked-vs-unchecked-exceptions-in-java/\">geeksforgeeks.org</a>)</p>"
+    "a": "<p>Checked exceptions are thrown at compile time; unchecked are runtime exceptions.</p>\n<img src=\"https://raw.githubusercontent.com/jsparks9/cards/main/images/Exception-in-java1.png\" alt=\"exceptions in Java flowchart\">\n<p>(<a target=\"_blank\" href=\"https://www.geeksforgeeks.org/checked-vs-unchecked-exceptions-in-java/\">geeksforgeeks.org</a>)</p>"
   },
   {
     "q": "<h3>What causes a NullPointerException?</h3>",

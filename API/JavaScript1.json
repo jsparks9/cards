@@ -17,7 +17,7 @@
   },
   {
     "q": "<h3>\nWhat programming paradigm(s) does JS support?\n</h3>",
-    "a": "<p>\nModern programming languages fall into two categories: imperative (also called procedural) and declarative (also called functional). JavaScript supports both.\n</p>\n<img style=\"max-width:500px;\"\nsrc=\"images/js-multi-paradigm.png\" alt=\"multi-paradigm-chart\">\n<p>(<a target=\"_blank\" \nhref=\"https://javascript.plainenglish.io/what-are-javascript-programming-paradigms-3ef0f576dfdb\">\nplainenglish.io\n</a>)</p>"
+    "a": "<p>\nModern programming languages fall into two categories: imperative (also called procedural) and declarative (also called functional). JavaScript supports both.\n</p>\n<img style=\"max-width:500px;\"\nsrc=\"https://raw.githubusercontent.com/jsparks9/cards/main/images/js-multi-paradigm.png\" alt=\"multi-paradigm-chart\">\n<p>(<a target=\"_blank\" \nhref=\"https://javascript.plainenglish.io/what-are-javascript-programming-paradigms-3ef0f576dfdb\">\nplainenglish.io\n</a>)</p>"
   },
   {
     "q": "<h3>\nWhat are the data types in JS?\n</h3>",
