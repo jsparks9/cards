@@ -25,7 +25,10 @@ let hasSent = false;
 let qm_down = false;
 let qm_moved = false;
 let show_a = true;
+let has_clicked = false;
 const default_a = "<h3>Click to Show Answer";
+const init_q = "<h1>Click to show question</h1><h1>You can select any combo of decks</h1>";
+const init_a = "<h1>Click+hold to move anything on this page</h1>";
 
 export default function App() {
   const [loadedDecks, setLoadedDecks] = useState<Deck[]>([]); // stores fetched decks
@@ -33,7 +36,7 @@ export default function App() {
   const [currentDeckInds, setCurrentDeckInds] = useState<number[]>([]); // tracks currently selected decks
   const [currentCards, setCurrentCards] = useState<Card[]>([]); // cards that may be displayed
   const [orderInd, setOrderInd] = useState<number[]>([]); // tracks deck order in currentCards
-  const [displayCard, setDisplayCard] = useState<Card>({q:"<h1>Click to display a question</h1>",a:""} as Card);
+  const [displayCard, setDisplayCard] = useState<Card>({q:init_q,a:init_a} as Card);
 
   const [showA, setShowA] = useState(true);
   const [deckSelection, setDeckSelection] = React.useState<string[]>([]);
@@ -42,6 +45,7 @@ export default function App() {
     event: React.MouseEvent<HTMLElement>,
     currentSel: string[],
   ) => {
+    if (!has_clicked) { has_clicked=true; };
     if (currentSel.length) { // enforces at least one selection
       console.log("Setting deck selection to "+currentSel)
       setDeckSelection(currentSel);
@@ -202,7 +206,7 @@ export default function App() {
       setDisplayCard(currentCards[rnum]);
     }
     else {
-      setDisplayCard({q:"<h1>No Cards Loaded</h1>", a:"<h1></h1>"} as Card);
+      setDisplayCard({q:"<h1>Please select a deck first</h1>", a:"<h1></h1>"} as Card);
     }
     console.log(currentCards);
 
@@ -214,6 +218,10 @@ export default function App() {
     qm_down = true;
   }
   const q_m_move = (e:SyntheticEvent) => {
+    if (!has_clicked) {
+      has_clicked=true;
+      setDeckSelection([decks[0]]);
+    }
     console.log("moved");
     if (qm_down) { qm_moved = true;
     }
@@ -270,7 +278,8 @@ export default function App() {
       <Card 
         style={{ minWidth: "500px", minHeight: "300px", 
         backgroundColor: "#FF9300", color: "#ffffff", 
-        textAlign:"left" }}
+        textAlign:"left", padding:"5px" 
+      }}
       >
         <div //onClick={q_click} 
         onMouseDown={q_m_down}
@@ -287,7 +296,7 @@ export default function App() {
       <Card 
         style={{ minWidth: "500px", minHeight: "300px", 
         backgroundColor: "#00A2FF", color: "#ffffff", 
-        textAlign:"left"
+        textAlign:"left", padding:"5px"
         }}
       >
         <div 
