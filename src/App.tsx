@@ -46,7 +46,8 @@ export default function App() {
   const [loadedDeckInds, setLoadedDeckInds] = useState<number[]>([]); // tracks fetched decks by index
   const [currentDeckInds, setCurrentDeckInds] = useState<number[]>([]); // tracks currently selected decks
   const [currentCards, setCurrentCards] = useState<Card[]>([]); // cards that may be displayed
-  const [displayCard, setDisplayCard] = useState<Card>({q:"",a:""} as Card);
+  const [orderInd, setOrderInd] = useState<number[]>([]); // tracks deck order in currentCards
+  const [displayCard, setDisplayCard] = useState<Card>({q:"<h1>Click to display a question</h1>",a:""} as Card);
 
   const [deckSelection, setDeckSelection] = React.useState([decks[0]]);
 
@@ -61,28 +62,45 @@ export default function App() {
 
   useEffect(() => {
     console.log("deckSelection changed. current selection is " + deckSelection);
-    
+    let inds:number[] = [];
+    for (let entry in deckSelection) {
+      // console.log("entry:"+deckSelection[entry])
+      let ind = decks.indexOf(deckSelection[entry]);
+      if (ind >= 0) {
+        inds.push(ind);
+      }
+    };
+    inds.sort();
+    console.log(inds); 
     if (loadedDeckInds.length < decks.length) { // check if all decks have been fetched
-      console.log("Running inner code");
-      let inds:number[] = [];
-      for (let entry in deckSelection) {
-        // console.log("entry:"+deckSelection[entry])
-        let ind = decks.indexOf(deckSelection[entry]);
-        if (ind >= 0) {
-          inds.push(ind);
-        }
-      };
-      inds.sort();
-      console.log(inds); // working up to here
       let add:number[] = [];
       (inds.filter(item => loadedDeckInds.indexOf(item) < 0)).forEach(dif => add.push(dif) && load(dif));
       setLoadedDeckInds([...loadedDeckInds, ...add].sort()) // keep track of fetched decks
     }
+    setCurrentDeckInds(inds);
   }, [deckSelection])
 
   useEffect(() => {
     console.log("loadedDeckInds updated to "+ loadedDeckInds)
   }, [loadedDeckInds])
+
+  useEffect(() => {
+    // set setCurrentCards to be from the selected decks
+    let order:number[] = [];
+    let cardColl:Card[] = [];
+    for (let i of currentDeckInds) { // for each currentDeckInd selected by user, 
+      for (let d of loadedDecks) {
+        if (d.idx === i) {
+          order.push(i);
+          cardColl.concat(d.cards);
+          break; // terminate inner loop
+        }
+      }
+    }
+    setCurrentCards(cardColl);
+    setOrderInd(order);
+    // now ready for flashcard functionality
+  },[currentDeckInds])
 
 
   async function load(ind:number) {
@@ -120,20 +138,36 @@ export default function App() {
       // setDeckSelection([decks[0]]);
       //hasSent = false; // not sure about this
     }
-  }, []) // loads first deck
+  }, []); // loads first deck
 
-  
+  const getNextCard = () => {
+
+  }
 
 
 
   return (
     <div className="App">
-      <div className="Please_delete_me" onClick={() => {}}>
+      {/* <div className="Please_delete_me" onClick={() => {}}>
         <p>Button16</p>
         <div><button onClick={() => {console.log("loadedDeckInds.length="+loadedDeckInds.length)}}>loadedDeckInds.length</button></div>
         <button onClick={() => {console.log("loadedDecks.length="+loadedDecks.length)}}>loadedDecks.length</button>
-      </div>
+      </div> */}
+    <Draggable >
+      <Card 
+        style={{ width: "500px", height: "300px", backgroundColor: "#FF9300", color: "#ffffff" }}
+        dangerouslySetInnerHTML={{__html: displayCard.q}}
+      ></Card>
+    </Draggable>
 
+    <Draggable >
+      <Card 
+        style={{ width: "500px", height: "300px", backgroundColor: "#00A2FF", color: "#ffffff" }}
+        dangerouslySetInnerHTML={{__html: displayCard.a}}
+      ></Card>
+    </Draggable>
+
+    <Draggable >
       <ToggleButtonGroup
         orientation="vertical"
         value={deckSelection}
@@ -146,6 +180,7 @@ export default function App() {
         </ToggleButton>
         )}
       </ToggleButtonGroup>
+    </Draggable>
     </div>
   );
 }
@@ -162,10 +197,11 @@ const DraggableCard = ({ text, bgColor }) => {
       onClick={()=>{console.log("thing clicked")}} 
       onMouseDownCapture={()=>{console.log("onMouseDownCapture")}}
       onMouseMoveCapture={()=>{console.log("Moved"+ new Date().getTime())}}
-        style={{ width: "40%", backgroundColor: bgColor, color: "#ffffff" }}
+        style={{ width: "500px", height: "300px", backgroundColor: bgColor, color: "#ffffff" }}
       >
-        <Button variant="text">BUY</Button>
-        <Typography variant="h6">{text}</Typography>
+        <Button style={{ width: "100%", height: "100%"}}
+        variant="text">BUY</Button>
+        {/* <Typography variant="h6">{text}</Typography> */}
       </Card>
     </Draggable>
   );
