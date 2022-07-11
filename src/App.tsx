@@ -275,6 +275,20 @@ export default function App() {
         <button onClick={() => {console.log("loadedDecks.length="+loadedDecks.length)}}>loadedDecks.length</button>
       </div> */}
     <Draggable >
+      <ToggleButtonGroup
+        orientation="vertical"
+        value={deckSelection}
+        onChange={handleDeckSelection}
+        // aria-label="device"
+      >
+        {decks.map((n) =>
+        <ToggleButton key={n} value={n} aria-label={n}>
+          {n}
+        </ToggleButton>
+        )}
+      </ToggleButtonGroup>
+    </Draggable>
+    <Draggable >
       <Card 
         style={{ minWidth: "500px", minHeight: "300px", 
         backgroundColor: "#FF9300", color: "#ffffff", 
@@ -291,7 +305,7 @@ export default function App() {
         dangerouslySetInnerHTML={{__html: displayCard.q}}
         ></div></Card>
     </Draggable>
-
+      
     <Draggable >
       <Card 
         style={{ minWidth: "500px", minHeight: "300px", 
@@ -308,20 +322,7 @@ export default function App() {
         ></div></Card>
     </Draggable>
 
-    <Draggable >
-      <ToggleButtonGroup
-        orientation="vertical"
-        value={deckSelection}
-        onChange={handleDeckSelection}
-        // aria-label="device"
-      >
-        {decks.map((n) =>
-        <ToggleButton key={n} value={n} aria-label={n}>
-          {n}
-        </ToggleButton>
-        )}
-      </ToggleButtonGroup>
-    </Draggable>
+    
     </div>
   );
 }
