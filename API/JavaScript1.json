@@ -61,7 +61,7 @@
   },
   {
     "q": "<h3>\n<ul>\n<li>\nWhat will happen?\n</li>\n<li>\nconst hi; hi = 3; console.log(hi);\n</li>\n</ul>\n</h3>",
-    "a": ""
+    "a": "<p>This will cause an error. </p>"
   },
   {
     "q": "<h3>\nWhat are callback functions? What about self-invoking functions?\n</h3>",
