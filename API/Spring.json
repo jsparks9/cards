@@ -125,11 +125,11 @@
   },
   {
     "q": "<h3>What is considered to be the most powerful type of advice? Why?</h3>",
-    "a": "<p>\n\n</p>"
+    "a": "<p>\nAround advice is advice that surrounds a join point such as a method invocation. This is the most powerful kind of advice. Around advice can perform custom behavior before and after the method invocation. It is also responsible for choosing whether to proceed to the join point or to shortcut the advised method execution by returning its own return value or throwing an exception.\n</p>"
   },
   {
     "q": "<h3>Can you prevent the execution of a join point when using before advice?</h3>",
-    "a": "<p>\nAround advice is advice that surrounds a join point such as a method invocation. This is the most powerful kind of advice. Around advice can perform custom behavior before and after the method invocation. It is also responsible for choosing whether to proceed to the join point or to shortcut the advised method execution by returning its own return value or throwing an exception.\n</p>"
+    "a": "<p>\nThis can be done only with @Around advice, not @Before.\n</p>"
   },
   {
     "q": "<h3>What is AspectJ? How is it enabled for use within a Spring application?</h3>",
